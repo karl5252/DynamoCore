@@ -1,0 +1,182 @@
+using UnityEngine;
+using System.Collections;
+
+public class PlayerController : MonoBehaviour {
+
+	public float speed = 5.0f;
+    public float jumpHeight = 2.2f;
+    [SerializeField]
+	private float _speedModifier;
+	[SerializeField]
+	public bool speedBoostActive = false;
+    public bool winner;
+    public bool timerIncrease;
+	public bool alive;
+	//public Text ScoreCounter;
+	//public Text Lives;
+
+	public Vector3 startPosition;
+	//Vector3 checkpointPosition;
+
+	private Rigidbody rb;
+    public UIManager uimanager;
+    private UI_Timer timer;
+    
+    private Vector3 currentVelocity;
+	public float acceleration;
+	public int counter = 0; // licznik punktow
+	//[SerializeField]
+	public int lCounter = 3;
+    //private float healthPoints = 1.00f;
+    
+    void Start ()
+	{
+		rb = GetComponent<Rigidbody>(); //jeżeli jest RigidBody uzyska dostęp
+		//playerVelocity = rb.velocity.magnitude; 
+		startPosition = this.transform.position;
+		alive = true;
+        timerIncrease = false;
+        winner = false;
+        //CounterControl();
+        //LifeCounter();
+        timer = uimanager.GetComponent<UI_Timer>();
+
+        //acceleration = (rb.velocity - lastVelocity) / Time.fixedDeltaTime;
+    	//lastVelocity = rb.velocity;
+		
+	}
+
+	void FixedUpdate ()
+	{
+		float moveHorizontal = Input.GetAxis ("Horizontal");
+		float moveVertical = Input.GetAxis ("Vertical");
+
+		Vector3 movement = new Vector3 (moveHorizontal, 0.0f, moveVertical);
+        currentVelocity = rb.velocity;
+        acceleration = currentVelocity.magnitude; //usided to adjust pitch for player sound
+
+		if (speedBoostActive == false)
+		{
+			rb.AddForce (movement * speed);
+			Debug.Log("Your current speed is: " + this.acceleration);
+
+		}
+		else
+		{
+			rb.AddForce (movement * (speed * _speedModifier) );
+			Debug.Log("Your current speed is: " + this.acceleration);
+
+		}
+
+
+
+		//rb.AddForce (movement * _speed);
+
+		
+        if (timer.totalTime <= 0.0f)
+        {
+            //this.transform.position = startPosition;
+            lCounter=0;
+        }
+        Debug.Log(timer.totalTime.ToString());
+        if (lCounter == 0)
+		{
+			alive = false;
+			Debug.Log ("you are " + alive);
+		}
+	}
+
+    public void SpeedModifier()
+    {
+        speedBoostActive = true;
+        StartCoroutine(SpeedBoostPowerDownRoutine());
+    }
+    IEnumerator SpeedBoostPowerDownRoutine() //countdown to extinction
+    {
+        yield return new WaitForSeconds(8.0f);
+        speedBoostActive = false;
+
+    }
+
+    /*
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.gameObject.CompareTag ("Pick Up"))
+		{
+			other.gameObject.SetActive (false);
+			counter = counter + 1;
+			//CounterControl();
+		}
+		if (other.gameObject.CompareTag ("Speed Up"))
+		{
+			///other.gameObject.SetActive (false);
+			SpeedModifier();
+		}
+		if (other.gameObject.CompareTag ("OneUp"))
+		{
+			other.gameObjfect.SetActive (false);
+			lCounter ++;
+			//LifeCounter();
+		}
+        if (other.gameObject.CompareTag("DontTouch"))
+        {
+            this.transform.position = startPosition;
+            lCounter--;
+            //LifeCounter();
+        }
+        if (other.gameObject.CompareTag("JumpPad"))
+        {
+            rb.velocity = new Vector3(0, 10, 0) * _jumpHeight;
+            //rb.AddForce(Vector3.up * 500f);
+            Debug.Log("jumpy! jumpy!");
+        }
+        if (other.gameObject.CompareTag("AddTime"))
+        {
+            other.gameObject.SetActive(false);
+            timerIncrease = true;
+        }
+        if (other.gameObject.CompareTag("EndLevel"))
+        {
+            //Application.LoadLevel(nextLevel);
+            winner = true;
+            _speed = 0;
+        }
+
+
+
+
+        /*if(other.gameObject.CompareTag ("Enemy Projectile"))
+		{
+			other.gameObject.SetActive(false);
+			_speed = _speed -0,5f;
+			//healthPoints = healthPoints - projectileDmg;
+		}
+		*/
+
+
+}
+/*void CounterControl ()
+{
+    ScoreCounter.text = "SCORE: " + counter.ToString ();
+
+}
+void LifeCounter ()
+{
+    Lives.text = "LIFE: " + lCounter.ToString ();
+
+}
+*/
+/*public void SpeedModifier()
+	{
+		_speedBoostActive = true;
+		StartCoroutine(SpeedBoostPowerDownRoutine());
+	}
+	IEnumerator SpeedBoostPowerDownRoutine()
+	{
+		yield return new WaitForSeconds(8.0f);
+		_speedBoostActive = false;
+	
+	}
+    
+}
+*/
